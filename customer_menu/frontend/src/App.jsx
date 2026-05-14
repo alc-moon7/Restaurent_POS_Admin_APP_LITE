@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 
 const API_BASE = ''
 
+<<<<<<< HEAD
 // ── Palette ───────────────────────────────────────────────────────────────────
 const C = {
   bg:       '#3D0B15',
@@ -18,6 +19,144 @@ const C = {
   muted:    '#C4949F',
   border:   '#6B1A2C',
   overlay:  'rgba(35,5,12,0.94)',
+=======
+// ── PDF receipt generator ─────────────────────────────────────────────────────
+// jsPDF built-in fonts only cover Latin — use "Tk" instead of the Bengali ৳ glyph
+function pdfTk(n) { return 'Tk ' + Math.round(n).toLocaleString() }
+
+async function generateReceipt(order, info, cartItems) {
+  const { jsPDF } = await import('jspdf')
+  const doc = new jsPDF({ unit: 'pt', format: 'a5' })
+  const W = doc.internal.pageSize.getWidth()
+  let y = 44
+
+  // ── Header ──────────────────────────────────────────────────────────────────
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(20)
+  doc.setTextColor(0, 0, 0)
+  doc.text(info?.restaurantName || 'Restaurant', W / 2, y, { align: 'center' }); y += 24
+
+  if (info?.outletName) {
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(10)
+    doc.setTextColor(100, 100, 100)
+    doc.text(info.outletName, W / 2, y, { align: 'center' }); y += 16
+  }
+
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(9)
+  doc.setTextColor(140, 140, 140)
+  doc.text(new Date().toLocaleString('en-BD'), W / 2, y, { align: 'center' }); y += 22
+  doc.setTextColor(0, 0, 0)
+
+  // ── Order number block ───────────────────────────────────────────────────────
+  doc.setDrawColor(160, 31, 51)
+  doc.setLineWidth(0.75)
+  doc.line(30, y, W - 30, y); y += 18
+
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(8)
+  doc.setTextColor(140, 140, 140)
+  doc.text('ORDER NUMBER', W / 2, y, { align: 'center' }); y += 6
+
+  doc.setFontSize(44)
+  doc.setTextColor(160, 31, 51)
+  doc.text(`#${order.serialNumber}`, W / 2, y + 34, { align: 'center' }); y += 50
+  doc.setTextColor(0, 0, 0)
+  doc.line(30, y, W - 30, y); y += 20
+
+  // ── Items ────────────────────────────────────────────────────────────────────
+  // Column header
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(8)
+  doc.setTextColor(140, 140, 140)
+  doc.text('ITEM', 30, y)
+  doc.text('QTY', W / 2, y, { align: 'center' })
+  doc.text('AMOUNT', W - 30, y, { align: 'right' })
+  y += 4
+  doc.setLineWidth(0.3)
+  doc.setDrawColor(200, 200, 200)
+  doc.line(30, y, W - 30, y); y += 12
+  doc.setTextColor(0, 0, 0)
+
+  doc.setFontSize(10)
+  for (const item of cartItems) {
+    doc.setFont('helvetica', 'normal')
+    // Wrap long item names
+    const nameLines = doc.splitTextToSize(item.name, W / 2 - 10)
+    doc.text(nameLines, 30, y)
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(80, 80, 80)
+    doc.text(`x${item.qty}`, W / 2, y, { align: 'center' })
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(0, 0, 0)
+    doc.text(pdfTk(item.price * item.qty), W - 30, y, { align: 'right' })
+    // Unit price hint
+    if (item.qty > 1) {
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(8)
+      doc.setTextColor(160, 160, 160)
+      doc.text(`${pdfTk(item.price)} each`, W - 30, y + 11, { align: 'right' })
+      doc.setFontSize(10)
+    }
+    y += nameLines.length > 1 ? nameLines.length * 13 + 6 : 20
+    doc.setTextColor(0, 0, 0)
+  }
+
+  // ── Notes ────────────────────────────────────────────────────────────────────
+  if (order.notes) {
+    y += 4
+    doc.setFont('helvetica', 'italic')
+    doc.setFontSize(9)
+    doc.setTextColor(120, 120, 120)
+    const noteLines = doc.splitTextToSize(`Note: ${order.notes}`, W - 60)
+    doc.text(noteLines, 30, y); y += noteLines.length * 13 + 4
+    doc.setTextColor(0, 0, 0)
+  }
+
+  // ── Total ────────────────────────────────────────────────────────────────────
+  y += 4
+  doc.setLineWidth(0.75)
+  doc.setDrawColor(160, 31, 51)
+  doc.line(30, y, W - 30, y); y += 16
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(13)
+  doc.text('Total', 30, y)
+  doc.setTextColor(160, 31, 51)
+  doc.text(pdfTk(order.total), W - 30, y, { align: 'right' }); y += 30
+  doc.setTextColor(0, 0, 0)
+
+  // ── Footer ───────────────────────────────────────────────────────────────────
+  doc.setLineWidth(0.3)
+  doc.setDrawColor(220, 220, 220)
+  doc.line(30, y, W - 30, y); y += 14
+  doc.setFont('helvetica', 'italic')
+  doc.setFontSize(9)
+  doc.setTextColor(160, 160, 160)
+  doc.text('Thank you for dining with us!', W / 2, y, { align: 'center' }); y += 13
+  doc.setFontSize(7)
+  doc.text(`Order ID: ${order.orderId?.slice(0, 12) ?? ''}`, W / 2, y, { align: 'center' })
+
+  doc.save(`receipt-${order.serialNumber ?? order.orderId?.slice(0, 8) ?? 'order'}.pdf`)
+}
+
+// ── Palette ───────────────────────────────────────────────────────────────────
+const C = {
+  bg:       '#160204',
+  surface:  '#280509',
+  surface2: '#3A080E',
+  surface3: '#4D0C14',
+  wine:     '#C8101E',
+  wineRich: '#D91B28',
+  wineDark: '#0D0103',
+  gold:     '#C9A86C',
+  goldLt:   '#E8D5A3',
+  cream:    '#F5EDEA',
+  text:     '#F5EDEA',
+  muted:    '#C49098',
+  border:   '#5C0C14',
+  overlay:  'rgba(15,2,4,0.95)',
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -70,6 +209,10 @@ export default function App() {
   const [errorMsg, setErr]      = useState('')
   const [orderRef, setOrderRef] = useState(null)
   const [lightbox, setLightbox] = useState(null)
+<<<<<<< HEAD
+=======
+  const [lastCart, setLastCart] = useState([])
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
 
   useEffect(() => {
     if (!outletId) { setPhase('error'); setErr('Invalid menu link.'); return }
@@ -110,6 +253,13 @@ export default function App() {
       })
       const data = await res.json()
       if (!data.ok) throw new Error(data.detail || 'Order failed')
+<<<<<<< HEAD
+=======
+      setLastCart(Object.entries(cart).map(([id, qty]) => {
+        const item = items.find(i => i.id === id)
+        return { name: item.name, qty, price: item.price }
+      }))
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
       setOrderRef(data.data)
       setPhase('success')
     } catch (e) { alert(e.message || 'Could not place order.') }
@@ -119,8 +269,13 @@ export default function App() {
   if (phase === 'loading') return <LoadingScreen />
   if (phase === 'error')   return <ErrorScreen message={errorMsg} />
   if (phase === 'success') return (
+<<<<<<< HEAD
     <SuccessScreen order={orderRef} restaurantName={info?.restaurantName}
       onBack={() => { setCart({}); setPhase('menu') }} />
+=======
+    <SuccessScreen order={orderRef} info={info} cartItems={lastCart}
+      onBack={() => { setCart({}); setLastCart([]); setPhase('menu') }} />
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
   )
   if (phase === 'cart') return (
     <CartScreen cart={cart} items={items} note={note} onNote={setNote}
@@ -173,7 +328,11 @@ function ErrorScreen({ message }) {
   )
 }
 
+<<<<<<< HEAD
 function SuccessScreen({ order, restaurantName, onBack }) {
+=======
+function SuccessScreen({ order, info, cartItems, onBack }) {
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
   return (
     <div style={S.centerPage}>
       <div className="fade-up" style={S.successCard}>
@@ -187,6 +346,7 @@ function SuccessScreen({ order, restaurantName, onBack }) {
         </h2>
         <p style={{ color: C.muted, fontSize: 13, marginTop: 4 }}>অর্ডার নেওয়া হয়েছে</p>
         <GoldLine />
+<<<<<<< HEAD
         {order && (
           <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 36, fontWeight: 700, color: C.gold, marginTop: 16 }}>
             {taka(order.total)}
@@ -201,6 +361,47 @@ function SuccessScreen({ order, restaurantName, onBack }) {
           Your order is being prepared.<br />Please wait.
         </p>
         <button style={S.btnGold} onClick={onBack}>Order Again</button>
+=======
+
+        {/* Serial number */}
+        {order?.serialNumber != null && (
+          <>
+            <p style={{ color: C.muted, fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', marginTop: 10 }}>
+              Order Number
+            </p>
+            <div style={{
+              fontFamily: 'Cormorant Garamond, serif',
+              fontSize: 80, fontWeight: 700, color: C.gold,
+              lineHeight: 1, letterSpacing: -3,
+            }}>
+              #{order.serialNumber}
+            </div>
+          </>
+        )}
+
+        {/* Total */}
+        {order && (
+          <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 28, fontWeight: 700, color: C.cream, marginTop: 6 }}>
+            {taka(order.total)}
+          </div>
+        )}
+
+        {info?.restaurantName && (
+          <p style={{ color: C.muted, fontSize: 11, marginTop: 4, letterSpacing: 1, textTransform: 'uppercase' }}>
+            {info.restaurantName}{info.outletName ? ` · ${info.outletName}` : ''}
+          </p>
+        )}
+        <p style={{ color: C.muted, fontSize: 13, marginTop: 10, textAlign: 'center', lineHeight: 1.6 }}>
+          Your order is being prepared.<br />Please wait.
+        </p>
+        <button style={S.btnGold} onClick={onBack}>Order Again</button>
+        <button
+          style={{ ...S.btnGold, background: 'transparent', border: `1px solid ${C.gold}`, color: C.gold, marginTop: 0 }}
+          onClick={() => generateReceipt(order, info, cartItems)}
+        >
+          Download Receipt · রিসিট ডাউনলোড
+        </button>
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
       </div>
     </div>
   )
@@ -252,7 +453,10 @@ function MenuScreen({ info, items, allItems, cart, categories, activeCategory, o
       {count > 0 && (
         <div className="slide-up" style={S.cartBar} onClick={onOpenCart}>
           <div style={S.cartBadge}>{count}</div>
+<<<<<<< HEAD
           <span style={S.cartLabel}>View Order · অর্ডার দেখুন</span>
+=======
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
           <span style={S.cartPrice}>{taka(total)}</span>
         </div>
       )}
@@ -599,11 +803,19 @@ const S = {
   heroMedia: { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' },
   heroGradient: {
     position: 'absolute', inset: 0,
+<<<<<<< HEAD
     background: `radial-gradient(ellipse at 30% 40%, ${C.wineRich}55 0%, ${C.wineDark}80 45%, ${C.bg} 100%)`,
   },
   heroOverlay: {
     position: 'absolute', inset: 0,
     background: 'linear-gradient(to bottom, rgba(13,6,8,.3) 0%, rgba(13,6,8,.55) 60%, rgba(13,6,8,.95) 100%)',
+=======
+    background: `radial-gradient(ellipse at 30% 40%, ${C.wineRich}66 0%, ${C.wineDark}90 45%, ${C.bg} 100%)`,
+  },
+  heroOverlay: {
+    position: 'absolute', inset: 0,
+    background: 'linear-gradient(to bottom, rgba(8,1,2,.25) 0%, rgba(8,1,2,.5) 60%, rgba(8,1,2,.95) 100%)',
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
   },
   heroRing1: {
     position: 'absolute', width: 340, height: 340, borderRadius: '50%',
@@ -626,7 +838,11 @@ const S = {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     fontFamily: 'Cormorant Garamond, serif',
     fontSize: 24, fontWeight: 700, color: C.gold,
+<<<<<<< HEAD
     background: 'rgba(13,6,8,.6)',
+=======
+    background: 'rgba(8,1,2,.65)',
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
     marginBottom: 4,
   },
   heroTitle: {
@@ -712,6 +928,7 @@ const S = {
   },
   qtyNum: { fontWeight: 700, fontSize: 13, color: C.cream, minWidth: 18, textAlign: 'center' },
 
+<<<<<<< HEAD
   // Cart bar
   cartBar: {
     position: 'fixed', bottom: 16, left: 16, right: 16,
@@ -721,15 +938,34 @@ const S = {
     cursor: 'pointer', zIndex: 20,
     border: `1px solid rgba(201,168,108,.2)`,
     boxShadow: '0 8px 32px rgba(0,0,0,.5)',
+=======
+  // Cart FAB (bottom-right pill)
+  cartBar: {
+    position: 'fixed', bottom: 24, right: 20,
+    background: `linear-gradient(135deg, ${C.wineRich}, #8B0A12)`,
+    borderRadius: 999, padding: '10px 16px 10px 10px',
+    display: 'flex', alignItems: 'center', gap: 8,
+    cursor: 'pointer', zIndex: 20,
+    border: `1px solid rgba(201,168,108,.25)`,
+    boxShadow: '0 6px 28px rgba(0,0,0,.6)',
+    WebkitTapHighlightColor: 'transparent',
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
   },
   cartBadge: {
     background: C.gold, color: C.bg,
     fontWeight: 800, fontSize: 12,
+<<<<<<< HEAD
     width: 26, height: 26, borderRadius: 8,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     flexShrink: 0,
   },
   cartLabel: { color: C.cream, fontWeight: 600, fontSize: 14, flex: 1 },
+=======
+    width: 28, height: 28, borderRadius: '50%',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    flexShrink: 0,
+  },
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
   cartPrice: {
     fontFamily: 'Cormorant Garamond, serif',
     color: C.gold, fontWeight: 700, fontSize: 16,

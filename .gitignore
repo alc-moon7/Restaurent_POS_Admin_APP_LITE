@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ── OS / Editor ───────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
@@ -111,3 +112,10 @@ app.*.map.json
 .svn/
 .swiftpm/
 migrate_working_dir/
+=======
+backend/.env
+backend/__pycache__/
+backend/routers/__pycache__/
+backend/uploads/
+backend/*.pyc
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
