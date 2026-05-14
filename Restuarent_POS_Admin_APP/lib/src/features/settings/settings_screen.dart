@@ -255,6 +255,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       subtitle: 'সেটিংস · v2.2.1',
                     ),
                     SizedBox(height: 14),
+                    _CustomerMenuLinkCard(
+                      baseUrl: app.cloudConfig.baseUrl,
+                      outletId: app.serverConfig.outletId,
+                      onBootstrap: () async {
+                        final messenger = ScaffoldMessenger.of(context);
+                        try {
+                          await app.provisionTenant(
+                            restaurantName:
+                                app.serverConfig.restaurantName.isEmpty
+                                    ? 'My Restaurant'
+                                    : app.serverConfig.restaurantName,
+                            outletName:
+                                app.serverConfig.outletName.isEmpty
+                                    ? 'Main Outlet'
+                                    : app.serverConfig.outletName,
+                          );
+                          messenger.showSnackBar(
+                            const SnackBar(
+                              content: Text('Bootstrapped on backend!'),
+                            ),
+                          );
+                        } catch (e) {
+                          messenger.showSnackBar(
+                            SnackBar(
+                              content: Text('Bootstrap failed: $e'),
+                              duration: const Duration(seconds: 5),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                    SizedBox(height: 12),
                     CompactSearchField(
                       controller: _settingsSearchController,
                       hintText: 'Search settings · সেটিংস খুঁজুন',
@@ -2558,6 +2590,130 @@ class _TableSettingsPageState extends State<_TableSettingsPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+
+// ─── Customer Menu Link Card ──────────────────────────────────────────────────
+
+class _CustomerMenuLinkCard extends StatelessWidget {
+  const _CustomerMenuLinkCard({
+    required this.baseUrl,
+    required this.outletId,
+    this.onBootstrap,
+  });
+
+  final String baseUrl;
+  final String outletId;
+  final Future<void> Function()? onBootstrap;
+
+  String get _url {
+    final trimmed = baseUrl.trim().replaceAll(RegExp(r"/+$"), "");
+    final root = trimmed.isEmpty ? "http://localhost:8000" : trimmed;
+    return "$root/menu/$outletId";
+  }
+
+  bool get _ready => outletId.trim().isNotEmpty;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: PosColors.background,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: PosColors.line),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.qr_code_2_rounded, size: 18, color: PosColors.muted),
+              SizedBox(width: 8),
+              Text(
+                "Customer menu link",
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
+                  color: PosColors.slate,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8),
+          if (!_ready) ...[
+            Text(
+              "Outlet not yet registered on backend. Tap below to bootstrap it.",
+              style: TextStyle(
+                fontSize: 12,
+                color: PosColors.muted,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            if (onBootstrap != null) ...[
+              SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: onBootstrap,
+                  icon: Icon(Icons.cloud_upload_rounded, size: 16),
+                  label: Text("Bootstrap on backend"),
+                ),
+              ),
+            ],
+          ] else ...[
+            SelectableText(
+              _url,
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+                color: PosColors.slate,
+                height: 1.4,
+              ),
+            ),
+            SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      await Clipboard.setData(ClipboardData(text: _url));
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text("Customer menu link copied"),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    icon: Icon(Icons.copy_rounded, size: 16),
+                    label: Text("Copy link"),
+                  ),
+                ),
+                SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      await Clipboard.setData(ClipboardData(text: outletId));
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text("Outlet ID copied"),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    icon: Icon(Icons.tag_rounded, size: 16),
+                    label: Text("Copy outlet ID"),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
       ),
     );
   }

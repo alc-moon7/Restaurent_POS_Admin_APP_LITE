@@ -186,6 +186,23 @@ class _TenantSetupScreenState extends State<TenantSetupScreen> {
         restaurantName: _restaurantCtrl.text,
         outletName: _outletCtrl.text,
       );
+      try {
+        await app.provisionTenant(
+          restaurantName: _restaurantCtrl.text,
+          outletName: _outletCtrl.text,
+        );
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Saved locally. Backend bootstrap failed (customer menu link unavailable): $e',
+              ),
+              duration: const Duration(seconds: 5),
+            ),
+          );
+        }
+      }
       if (!mounted) return;
       widget.onProvisioned();
     } finally {
