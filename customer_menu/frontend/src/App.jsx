@@ -124,20 +124,20 @@ async function generateReceipt(order, info, cartItems) {
 
 // ── Palette ───────────────────────────────────────────────────────────────────
 const C = {
-  bg:       '#3D0B15',
-  surface:  '#4F1120',
-  surface2: '#5E162A',
-  surface3: '#6D1B32',
-  wine:     '#8B1A2C',
-  wineRich: '#A01F33',
-  wineDark: '#2A0810',
+  bg:       '#160204',
+  surface:  '#280509',
+  surface2: '#3A080E',
+  surface3: '#4D0C14',
+  wine:     '#C8101E',
+  wineRich: '#D91B28',
+  wineDark: '#0D0103',
   gold:     '#C9A86C',
   goldLt:   '#E8D5A3',
-  cream:    '#F0E6DC',
-  text:     '#F0E6DC',
-  muted:    '#C4949F',
-  border:   '#6B1A2C',
-  overlay:  'rgba(35,5,12,0.94)',
+  cream:    '#F5EDEA',
+  text:     '#F5EDEA',
+  muted:    '#C49098',
+  border:   '#5C0C14',
+  overlay:  'rgba(15,2,4,0.95)',
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -748,11 +748,11 @@ const S = {
   heroMedia: { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' },
   heroGradient: {
     position: 'absolute', inset: 0,
-    background: `radial-gradient(ellipse at 30% 40%, ${C.wineRich}55 0%, ${C.wineDark}80 45%, ${C.bg} 100%)`,
+    background: `radial-gradient(ellipse at 30% 40%, ${C.wineRich}66 0%, ${C.wineDark}90 45%, ${C.bg} 100%)`,
   },
   heroOverlay: {
     position: 'absolute', inset: 0,
-    background: 'linear-gradient(to bottom, rgba(13,6,8,.3) 0%, rgba(13,6,8,.55) 60%, rgba(13,6,8,.95) 100%)',
+    background: 'linear-gradient(to bottom, rgba(8,1,2,.25) 0%, rgba(8,1,2,.5) 60%, rgba(8,1,2,.95) 100%)',
   },
   heroRing1: {
     position: 'absolute', width: 340, height: 340, borderRadius: '50%',
@@ -775,7 +775,7 @@ const S = {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     fontFamily: 'Cormorant Garamond, serif',
     fontSize: 24, fontWeight: 700, color: C.gold,
-    background: 'rgba(13,6,8,.6)',
+    background: 'rgba(8,1,2,.65)',
     marginBottom: 4,
   },
   heroTitle: {
@@ -864,7 +864,7 @@ const S = {
   // Cart FAB (bottom-right pill)
   cartBar: {
     position: 'fixed', bottom: 24, right: 20,
-    background: `linear-gradient(135deg, ${C.wineRich}, ${C.wineDark})`,
+    background: `linear-gradient(135deg, ${C.wineRich}, #8B0A12)`,
     borderRadius: 999, padding: '10px 16px 10px 10px',
     display: 'flex', alignItems: 'center', gap: 8,
     cursor: 'pointer', zIndex: 20,
