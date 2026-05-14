@@ -5,7 +5,11 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
+<<<<<<< HEAD
+from sqlalchemy import select
+=======
 from sqlalchemy import func, select
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -124,6 +128,8 @@ async def place_customer_order(
     await db.commit()
     await db.refresh(order)
 
+<<<<<<< HEAD
+=======
     # Assign a 1-based serial number scoped to this outlet
     count_res = await db.execute(
         select(func.count()).select_from(Order).where(Order.outlet_id == outlet_id)
@@ -131,6 +137,7 @@ async def place_customer_order(
     order.serial_number = count_res.scalar()
     await db.commit()
 
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
     # Broadcast to the admin POS via WebSocket
     await manager.broadcast(
         outlet_id,
@@ -139,7 +146,10 @@ async def place_customer_order(
             "data": {
                 "id": order.id,
                 "outletId": order.outlet_id,
+<<<<<<< HEAD
+=======
                 "serialNumber": order.serial_number,
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
                 "source": order.source,
                 "status": order.status,
                 "totalAmount": float(order.total_amount),
@@ -151,6 +161,9 @@ async def place_customer_order(
         },
     )
 
+<<<<<<< HEAD
+    return _ok({"orderId": order.id, "status": order.status, "total": float(order.total_amount)})
+=======
     return _ok({
         "orderId": order.id,
         "serialNumber": order.serial_number,
@@ -159,6 +172,7 @@ async def place_customer_order(
         "items": order.items,
         "notes": order.notes,
     })
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
 
 
 # ── GET restaurant info ────────────────────────────────────────────────────────

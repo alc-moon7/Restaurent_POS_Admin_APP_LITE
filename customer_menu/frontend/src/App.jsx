@@ -2,6 +2,24 @@ import React, { useEffect, useRef, useState } from 'react'
 
 const API_BASE = ''
 
+<<<<<<< HEAD
+// ── Palette ───────────────────────────────────────────────────────────────────
+const C = {
+  bg:       '#3D0B15',
+  surface:  '#4F1120',
+  surface2: '#5E162A',
+  surface3: '#6D1B32',
+  wine:     '#8B1A2C',
+  wineRich: '#A01F33',
+  wineDark: '#2A0810',
+  gold:     '#C9A86C',
+  goldLt:   '#E8D5A3',
+  cream:    '#F0E6DC',
+  text:     '#F0E6DC',
+  muted:    '#C4949F',
+  border:   '#6B1A2C',
+  overlay:  'rgba(35,5,12,0.94)',
+=======
 // ── PDF receipt generator ─────────────────────────────────────────────────────
 // jsPDF built-in fonts only cover Latin — use "Tk" instead of the Bengali ৳ glyph
 function pdfTk(n) { return 'Tk ' + Math.round(n).toLocaleString() }
@@ -138,6 +156,7 @@ const C = {
   muted:    '#C49098',
   border:   '#5C0C14',
   overlay:  'rgba(15,2,4,0.95)',
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -190,7 +209,10 @@ export default function App() {
   const [errorMsg, setErr]      = useState('')
   const [orderRef, setOrderRef] = useState(null)
   const [lightbox, setLightbox] = useState(null)
+<<<<<<< HEAD
+=======
   const [lastCart, setLastCart] = useState([])
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
 
   useEffect(() => {
     if (!outletId) { setPhase('error'); setErr('Invalid menu link.'); return }
@@ -231,10 +253,13 @@ export default function App() {
       })
       const data = await res.json()
       if (!data.ok) throw new Error(data.detail || 'Order failed')
+<<<<<<< HEAD
+=======
       setLastCart(Object.entries(cart).map(([id, qty]) => {
         const item = items.find(i => i.id === id)
         return { name: item.name, qty, price: item.price }
       }))
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
       setOrderRef(data.data)
       setPhase('success')
     } catch (e) { alert(e.message || 'Could not place order.') }
@@ -244,8 +269,13 @@ export default function App() {
   if (phase === 'loading') return <LoadingScreen />
   if (phase === 'error')   return <ErrorScreen message={errorMsg} />
   if (phase === 'success') return (
+<<<<<<< HEAD
+    <SuccessScreen order={orderRef} restaurantName={info?.restaurantName}
+      onBack={() => { setCart({}); setPhase('menu') }} />
+=======
     <SuccessScreen order={orderRef} info={info} cartItems={lastCart}
       onBack={() => { setCart({}); setLastCart([]); setPhase('menu') }} />
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
   )
   if (phase === 'cart') return (
     <CartScreen cart={cart} items={items} note={note} onNote={setNote}
@@ -298,7 +328,11 @@ function ErrorScreen({ message }) {
   )
 }
 
+<<<<<<< HEAD
+function SuccessScreen({ order, restaurantName, onBack }) {
+=======
 function SuccessScreen({ order, info, cartItems, onBack }) {
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
   return (
     <div style={S.centerPage}>
       <div className="fade-up" style={S.successCard}>
@@ -312,6 +346,22 @@ function SuccessScreen({ order, info, cartItems, onBack }) {
         </h2>
         <p style={{ color: C.muted, fontSize: 13, marginTop: 4 }}>অর্ডার নেওয়া হয়েছে</p>
         <GoldLine />
+<<<<<<< HEAD
+        {order && (
+          <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 36, fontWeight: 700, color: C.gold, marginTop: 16 }}>
+            {taka(order.total)}
+          </div>
+        )}
+        {restaurantName && (
+          <p style={{ color: C.muted, fontSize: 12, marginTop: 6, letterSpacing: 1, textTransform: 'uppercase' }}>
+            {restaurantName}
+          </p>
+        )}
+        <p style={{ color: C.muted, fontSize: 13, marginTop: 12, textAlign: 'center', lineHeight: 1.6 }}>
+          Your order is being prepared.<br />Please wait.
+        </p>
+        <button style={S.btnGold} onClick={onBack}>Order Again</button>
+=======
 
         {/* Serial number */}
         {order?.serialNumber != null && (
@@ -351,6 +401,7 @@ function SuccessScreen({ order, info, cartItems, onBack }) {
         >
           Download Receipt · রিসিট ডাউনলোড
         </button>
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
       </div>
     </div>
   )
@@ -402,6 +453,10 @@ function MenuScreen({ info, items, allItems, cart, categories, activeCategory, o
       {count > 0 && (
         <div className="slide-up" style={S.cartBar} onClick={onOpenCart}>
           <div style={S.cartBadge}>{count}</div>
+<<<<<<< HEAD
+          <span style={S.cartLabel}>View Order · অর্ডার দেখুন</span>
+=======
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
           <span style={S.cartPrice}>{taka(total)}</span>
         </div>
       )}
@@ -748,11 +803,19 @@ const S = {
   heroMedia: { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' },
   heroGradient: {
     position: 'absolute', inset: 0,
+<<<<<<< HEAD
+    background: `radial-gradient(ellipse at 30% 40%, ${C.wineRich}55 0%, ${C.wineDark}80 45%, ${C.bg} 100%)`,
+  },
+  heroOverlay: {
+    position: 'absolute', inset: 0,
+    background: 'linear-gradient(to bottom, rgba(13,6,8,.3) 0%, rgba(13,6,8,.55) 60%, rgba(13,6,8,.95) 100%)',
+=======
     background: `radial-gradient(ellipse at 30% 40%, ${C.wineRich}66 0%, ${C.wineDark}90 45%, ${C.bg} 100%)`,
   },
   heroOverlay: {
     position: 'absolute', inset: 0,
     background: 'linear-gradient(to bottom, rgba(8,1,2,.25) 0%, rgba(8,1,2,.5) 60%, rgba(8,1,2,.95) 100%)',
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
   },
   heroRing1: {
     position: 'absolute', width: 340, height: 340, borderRadius: '50%',
@@ -775,7 +838,11 @@ const S = {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     fontFamily: 'Cormorant Garamond, serif',
     fontSize: 24, fontWeight: 700, color: C.gold,
+<<<<<<< HEAD
+    background: 'rgba(13,6,8,.6)',
+=======
     background: 'rgba(8,1,2,.65)',
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
     marginBottom: 4,
   },
   heroTitle: {
@@ -861,6 +928,17 @@ const S = {
   },
   qtyNum: { fontWeight: 700, fontSize: 13, color: C.cream, minWidth: 18, textAlign: 'center' },
 
+<<<<<<< HEAD
+  // Cart bar
+  cartBar: {
+    position: 'fixed', bottom: 16, left: 16, right: 16,
+    background: `linear-gradient(135deg, ${C.wineRich}, ${C.wineDark})`,
+    borderRadius: 14, padding: '14px 18px',
+    display: 'flex', alignItems: 'center', gap: 10,
+    cursor: 'pointer', zIndex: 20,
+    border: `1px solid rgba(201,168,108,.2)`,
+    boxShadow: '0 8px 32px rgba(0,0,0,.5)',
+=======
   // Cart FAB (bottom-right pill)
   cartBar: {
     position: 'fixed', bottom: 24, right: 20,
@@ -871,14 +949,23 @@ const S = {
     border: `1px solid rgba(201,168,108,.25)`,
     boxShadow: '0 6px 28px rgba(0,0,0,.6)',
     WebkitTapHighlightColor: 'transparent',
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
   },
   cartBadge: {
     background: C.gold, color: C.bg,
     fontWeight: 800, fontSize: 12,
+<<<<<<< HEAD
+    width: 26, height: 26, borderRadius: 8,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    flexShrink: 0,
+  },
+  cartLabel: { color: C.cream, fontWeight: 600, fontSize: 14, flex: 1 },
+=======
     width: 28, height: 28, borderRadius: '50%',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     flexShrink: 0,
   },
+>>>>>>> 9f57987456cfac341d8b609d46660aefe3562ca6
   cartPrice: {
     fontFamily: 'Cormorant Garamond, serif',
     color: C.gold, fontWeight: 700, fontSize: 16,
